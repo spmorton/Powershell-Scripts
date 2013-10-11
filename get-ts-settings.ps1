@@ -33,12 +33,12 @@ foreach ($Server in $servers )
 	$rlist = New-Object System.Object
 	$rlist | Add-Member -MemberType NoteProperty -Name "Server" -Value $Server.Server
 
-    $entry = $(Get-ItemProperty "hklm:\SYSTEM\CurrentControlSet\Control\Terminal Server\").fDenyTSConnections
+	$entry = invoke-command { (get-itemproperty "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server").fDenyTSConnections } -computername $Server.Server -credential $Cred
 				
 
 	$rlist | Add-Member -MemberType NoteProperty -Name "fDenyTSConnections" -Value $entry
 
-  # Uncomment if you start having connection issues
+	# Uncomment if you start having connection issues
 	#Start-Sleep -Seconds 1
 	
 	$results += $rlist
