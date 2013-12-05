@@ -1,4 +1,6 @@
 # BEGIN access Section
+#$wsdlPath = "http://your-server/Services/API?wsdl"
+$wsdlPath = "http://your-server/Services/API?wsdl"
 
 # Connect to the API and authenticate.
 $CookieContainer = New-Object System.Net.CookieContainer
@@ -8,14 +10,12 @@ $wsdlProxy.CookieContainer = $CookieContainer
 
 #!!!!!!! Begin Login 
 #Production
-#$wsdlPath = "http://your-server/Services/API?wsdl"
 #$cred = Get-Credential
 #$wsdlProxy.login($cred.UserName, $cred.GetNetworkCredential().password)
 
 
 # user must be api enabled
 # Test
-$wsdlPath = "http://your-server/Services/API?wsdl"
 $apiUsername = "api-admin"
 $apiPassword = "admin"
 $wsdlProxy.login($apiUsername, $apiPassword)
