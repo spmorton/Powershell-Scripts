@@ -1,3 +1,12 @@
+# Credits
+# Written by Scott Morton
+# 12/5/2013
+# Use is permitted as long as the credits section of this program are included in any revisions or distributions
+#
+# This is a basic interface into BlueCat Proteus
+# Wrote this for work, its basic, has minor functionality but useful.
+# Will be expanded in the future as the needs arise
+
 # BEGIN access Section
 #$wsdlPath = "http://your-server/Services/API?wsdl"
 $wsdlPath = "http://your-server/Services/API?wsdl"
