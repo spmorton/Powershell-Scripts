@@ -1,9 +1,8 @@
 <#
   Written by Scott Morton
   Date - 5/2/2014
-  Can be used and redistributed as long as this header information is retained
-  License is GPL 3
 #>
+
 
 $daysOld = 180        # Default # of days since password last set
 
@@ -12,7 +11,7 @@ $date = Get-Date
 $array = @()            # used for selected and displayed data
 $listMatching = @{}
 $listOS = @{}
-
+$failures = @()
 
 $creds = Get-Credential
 
@@ -32,7 +31,7 @@ Function Scan()
     Get-ADComputer -Filter * -Credential $creds -Server $Server.Text -Properties Name,CanonicalName,Description,Enabled,Modified,OperatingSystem,PasswordLastSet |
          ForEach-Object {
 
-            Write-Host "Checking - " $_.Name
+            Write-Host "Checking - " $_.SamAccountName
 
             if ($_.PasswordLastSet -ne $null -AND ($date - $_.PasswordLastSet).Days -ge $daysOld -AND $_.Enabled -eq $true)
             {
@@ -62,12 +61,35 @@ Function Perform_Operation()
     {
         if ($disableObject.Checked)
         {
-            write-host "Disabling - "$child.Name
-            Set-ADComputer -Identity $child.Name -Credential $creds -Server $Server.Text -enabled $False
+            try
+            {
+                write-host "Disabling - "$child.SamAccountName
+                Set-ADComputer -Identity $child.SamAccountName -Credential $creds -Server $Server.Text -enabled $False
+            }
+
+            catch
+            {
+                $failures.Add($child.SamAccountName,$child)
+            }
+
         }
         elseif ($deleteObject.Checked)
         {
             Write-Host "Not Implemented"
+        }
+    }
+
+    if ($failures.Count)
+    {
+        $OUTPUT = [System.Windows.Forms.MessageBox]::Show("Modification failures detected, click Yes to select destination file for report and no to disregard", "Status", 4)
+        if ($OUTPUT -eq "YES")
+        {
+            # Request the filename to write data to
+            $fd = New-Object system.windows.forms.savefiledialog
+            $fd.showdialog()
+            $fd.filename
+
+            $failures | Export-Csv -Path $fd.filename –NoTypeInformat
         }
     }
 }
@@ -97,10 +119,12 @@ Function Export_CSV()
 
 Function LoadOSs()
 {
+    $listOS = $listOS | sort
     foreach ($child in $listOS.Values)
     {
         $OSlist.Items.Add($child)
     }
+    
 }
 
 Function Display_Selections()
@@ -249,7 +273,7 @@ $deleteObject.Location = New-Object System.Drawing.Size(160,160)
 $deleteObject.Text = "Delete Objects"
 $Form1.Controls.Add($deleteObject)
 
-$Form1.Topmost = $True
+$Form1.Topmost = $False
 
 $Form1.Add_Shown({$Form1.Activate()})
 
